@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>BruceKaushik's Neighborhood Map</title>
+	<link rel="stylesheet" type="text/css" href="css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+</head>
+<body>
+	<div class="wrapper">
+		<header>
+			<ul id="neighborhoods" data-bind="foreach: neighborhoods">
+				<li data-bind="attr: { 'data-sno': sno }, click: $parent.initMap">
+					<span data-bind="text: address"></span>
+				</li>
+			</ul>
+		</header>
+		<aside></aside>
+		<div class="map-container">
+			<div id="map"></div>
+		</div>
+	</div>
+
+	<!-- load jquery library -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- load knockout library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+
+    <!-- load google maps javscript api -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCiavCuPiYyLnpxxuv-CFgezXOvfEVn2M&libraries=places,geometry,drawing&v=3&callback=initMap"
+    async defer></script>
+
+    <!-- load our main javascript file -->
+    <script src="js/main.js"></script>
+</body>
+</html>
