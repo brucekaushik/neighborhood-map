@@ -16,7 +16,13 @@
 				</li>
 			</ul>
 		</header>
-		<aside></aside>
+		<aside>
+			<input id="search" data-bind="value: Query, valueUpdate: 'keyup'" type="text" name="">
+			<h3>Search results:</h3>
+			<ul data-bind="foreach: searchResults">
+			  <li data-bind="text: name"></li>
+			</ul>
+		</aside>
 		<div class="map-container">
 			<div id="map"></div>
 		</div>

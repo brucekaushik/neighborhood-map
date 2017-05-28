@@ -114,8 +114,36 @@ var ViewModel = function(){
 	          position: place.location
 	        });
 		});
-	}
+
+		// trigger changes and keyup events, 
+		// so that we show the list of markers,
+		// after the data is available
+		$('#search').val(' ');
+		$('#search').keyup();
+		$('#search').val('');
+		$('#search').keyup();
+	};
+
+	self.Query = ko.observable('');
+
+	// computed observable
+	self.searchResults = ko.computed(function() {
+	    var q = self.Query();
+
+	    if(self.currentNeighborhood){
+		    // self reminder: filter is a native javascript method
+		    var items = self.currentNeighborhood.poi.filter(function(i) {
+		      return i.name.toLowerCase().indexOf(q) >= 0;
+		    });
+	    
+	    	return items;
+	    }
+	});
 }
+
+
+
+
 
 
 // apply bindings
