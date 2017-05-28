@@ -33,6 +33,8 @@ var Neighborhood = function(data){
 	this.address = ko.observable(data.address);
 	this.places = ko.observableArray([]);
 	this.latlng = ko.observable(data.latlng);
+	this.poi = [];
+	this.markers = [];
 }
 
 
@@ -43,9 +45,11 @@ var ViewModel = function(){
 	// retain this=ViewModel
 	self = this; 
 
-	// store map, markers for the current instances
-	this.map = null;
-	this.markers = [];
+	// store map
+	self.map = null;
+
+	// store current neighborhood
+	self.currentNeighborhood = null;
 
 	// create neighborhoods knockout observable array
 	this.neighborhoods = ko.observableArray([]);
@@ -57,14 +61,60 @@ var ViewModel = function(){
 
 	// initialize map
 	this.initMap = function(){
-		this.map = new google.maps.Map(
+		// set current neighborhood
+		self.currentNeighborhood = this;
+
+		self.map = new google.maps.Map(
 			$('#map')[0],
 			{
 				center: this.latlng(),
   				zoom: 17	
 			}
 		);
+
+		// get places of interest
+		self.getPlacesOfInterest(this, self.map, this.latlng());
 	};
+
+	// get places of interest
+	self.getPlacesOfInterest = function(neighborhood, map, latlng){
+		// initiate request service object
+		service = new google.maps.places.PlacesService(map);
+
+		// prepare request params
+		var request = {
+			location: latlng,
+			radius: '500'
+		};
+
+		// make nearby search
+		service.nearbySearch(request, self.storePlaces);
+	};
+
+	// store places in markers array (of this neighborhood)
+	self.storePlaces = function (results, status){
+		$.each(results,function(index, place){
+			var placeDetails = {
+				placeId: place.place_id,
+				name: place.name,
+				location: place.geometry.location
+			};
+
+			self.currentNeighborhood.poi.push(placeDetails);
+		});
+
+		// create markers for places
+		self.createMarkers(self.currentNeighborhood.poi);
+	};
+
+	self.createMarkers = function(placesList){
+		$.each(placesList, function(index, place){
+			var marker = new google.maps.Marker({
+	          map: self.map,
+	          position: place.location
+	        });
+		});
+	}
 }
 
 
