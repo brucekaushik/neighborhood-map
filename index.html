@@ -17,10 +17,10 @@
 			</ul>
 		</header>
 		<aside>
-			<input id="search" data-bind="value: Query, valueUpdate: 'keyup'" type="text" name="">
+			<input id="search" data-bind="value: query, valueUpdate: 'keyup'" type="text" name="">
 			<h3>Search results:</h3>
-			<ul data-bind="foreach: searchResults">
-			  <li data-bind="text: name"></li>
+			<ul id="searchresults" data-bind="foreach: searchResults">
+			  <li data-bind="text: name, click: $parent.clickMarker"></li>
 			</ul>
 		</aside>
 		<div class="map-container">

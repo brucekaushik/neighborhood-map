@@ -54,6 +54,9 @@ var ViewModel = function(){
 	// create neighborhoods knockout observable array
 	this.neighborhoods = ko.observableArray([]);
 
+	// store info window
+	self.infowindow = null;
+
 	// push items to neighborhoods array
 	neighborhoods.forEach(function(n){
 		self.neighborhoods.push(new Neighborhood(n));
@@ -63,6 +66,8 @@ var ViewModel = function(){
 	this.initMap = function(){
 		// set current neighborhood
 		self.currentNeighborhood = this;
+
+		self.infowindow = new google.maps.InfoWindow();
 
 		self.map = new google.maps.Map(
 			$('#map')[0],
@@ -93,14 +98,18 @@ var ViewModel = function(){
 
 	// store places in markers array (of this neighborhood)
 	self.storePlaces = function (results, status){
+		var i = 1;
 		$.each(results,function(index, place){
 			var placeDetails = {
+				sno: i,
 				placeId: place.place_id,
 				name: place.name,
 				location: place.geometry.location
 			};
 
 			self.currentNeighborhood.poi.push(placeDetails);
+
+			i++;
 		});
 
 		// create markers for places
@@ -108,11 +117,24 @@ var ViewModel = function(){
 	};
 
 	self.createMarkers = function(placesList){
+		var i = 1;
 		$.each(placesList, function(index, place){
 			var marker = new google.maps.Marker({
-	          map: self.map,
-	          position: place.location
+				sno: i,
+				map: self.map,
+				position: place.location
 	        });
+
+			// Create an onclick event to open an infowindow at each marker.
+			marker.addListener('click', function() {
+				self.infowindow.marker = marker;
+          		self.infowindow.setContent(place.name);
+          		self.infowindow.open(self.map, marker);
+			});
+
+			self.currentNeighborhood.markers.push(marker);
+
+			i++;
 		});
 
 		// trigger changes and keyup events, 
@@ -124,21 +146,33 @@ var ViewModel = function(){
 		$('#search').keyup();
 	};
 
-	self.Query = ko.observable('');
+	// store search query
+	// observe valueUpdate: 'keyup' usage in html 
+	self.query = ko.observable('');
 
 	// computed observable
 	self.searchResults = ko.computed(function() {
-	    var q = self.Query();
+	    var q = self.query(); 
+	    // this value is update on every 'key up'
+	    // so, the state of the variable will change
+	    // so, this will run again and again
 
 	    if(self.currentNeighborhood){
 		    // self reminder: filter is a native javascript method
 		    var items = self.currentNeighborhood.poi.filter(function(i) {
 		      return i.name.toLowerCase().indexOf(q) >= 0;
 		    });
+
+		    // self.currentNeighborhood.markers = [];
+		    // self.createMarkers(items);
 	    
 	    	return items;
 	    }
 	});
+
+	this.clickMarker = function(){
+		google.maps.event.trigger(self.currentNeighborhood.markers[this.sno-1], 'click');
+	}
 }
 
 
@@ -155,3 +189,5 @@ ko.applyBindings(new ViewModel());
 function initMap(){
 	$('#neighborhoods > li:first').click();
 }
+
+
