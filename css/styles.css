@@ -1,4 +1,86 @@
-#map {
-	width: 500px;
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+    min-height: 100% !important;
+    height: 100%;
+}
+
+body {
+	width: 100%;
+	height: 100%;
+}
+
+#wrapper {
+	width: 100%;
+	height: 100%;
+}
+
+/* begin header */
+
+	header {
+		background: #232324;
+		color: #ffffff;
+	}
+
+	#neighborhoods {
+		margin: 0;
+		padding: 0;
+	}
+
+	#neighborhoods li {
+		display: inline-block;
+		padding: 30px;
+		cursor: pointer;
+		color: #cccccc;
+	}
+
+	#neighborhoods li.current {
+		background: #29961f;
+		color: #ffffff;
+	}
+
+/* end header */
+
+/* begin aside */
+
+	aside {
+		width: 25%;
+		padding: 10px;
+		float: left;
+	}
+
+	aside ul {
+		list-style-type: none;
+		padding: 0;
+	}
+
+	aside ul li {
+		border-bottom: 1px dotted #ccc;
+    	padding: 7px;
+	}
+
+	aside input {
+		width: 100%;
+		background: #f9f9f9;
+		border: 1px solid #000000;
+		border-radius: 5px;
+	}
+
+/* end aside */
+
+/* begin map container */
+
+.map-container {
+	float: left;
+	width: 75%;
 	height: 500px;
 }
+
+#map {
+	width: 100%;
+	height: 100%;
+}
+
+/* end map container */

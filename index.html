@@ -17,8 +17,7 @@
 			</ul>
 		</header>
 		<aside>
-			<input id="search" data-bind="value: query, valueUpdate: 'keyup'" type="text" name="">
-			<h3>Search results:</h3>
+			<input id="search" data-bind="value: query, valueUpdate: 'keyup'" type="text" name="search" placeholder="Filter Places">
 			<ul id="searchresults" data-bind="foreach: searchResults">
 			  <li data-bind="text: name, click: $parent.clickMarker"></li>
 			</ul>
