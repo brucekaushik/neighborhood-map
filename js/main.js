@@ -98,6 +98,12 @@ var ViewModel = function(){
 
 	// store places in markers array (of this neighborhood)
 	self.storePlaces = function (results, status){
+		// remove the city result
+		results.shift();
+
+		// reset places of interest array
+		self.currentNeighborhood.poi = [];
+
 		var i = 1;
 		$.each(results,function(index, place){
 			var placeDetails = {
