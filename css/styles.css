@@ -61,6 +61,11 @@ body {
     	padding: 7px;
 	}
 
+	aside ul li:hover {
+		background: #4286f4;
+		cursor: pointer;
+	}
+
 	aside input {
 		width: 100%;
 		background: #f9f9f9;
