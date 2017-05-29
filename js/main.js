@@ -156,6 +156,23 @@ var ViewModel = function(){
 		$('#search').keyup();
 	};
 
+	// hide all markers on map
+	self.hideAllMarkers = function(){
+		if (self.currentNeighborhood){
+			for (var i = 0; i < self.currentNeighborhood.markers.length; i++) {
+				self.currentNeighborhood.markers[i].setMap(null);
+			}
+		}
+	}
+
+	// loop through the places of interest and 
+	// show markers on map
+	self.showMarkersForPois = function(pois) {
+		for (var i = 0; i < pois.length; i++) {
+			self.currentNeighborhood.markers[pois[i].sno-1].setMap(self.map);
+		}
+	}
+
 	// store search query
 	// observe valueUpdate: 'keyup' usage in html 
 	self.query = ko.observable('');
@@ -169,14 +186,16 @@ var ViewModel = function(){
 
 	    if(self.currentNeighborhood){
 		    // self reminder: filter is a native javascript method
-		    var items = self.currentNeighborhood.poi.filter(function(i) {
+		    var pois = self.currentNeighborhood.poi.filter(function(i) {
 		      return i.name.toLowerCase().indexOf(q) >= 0;
 		    });
 
-		    // self.currentNeighborhood.markers = [];
-		    // self.createMarkers(items);
+		    // show markers for places of interest
+		    // hide the rest
+		    self.hideAllMarkers();
+		    self.showMarkersForPois(pois);
 	    
-	    	return items;
+	    	return pois;
 	    }
 	});
 
