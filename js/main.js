@@ -148,6 +148,13 @@ var ViewModel = function(){
 				self.infowindow.marker = marker;
           		self.infowindow.setContent(place.name);
           		self.infowindow.open(self.map, marker);
+          		this.setAnimation(google.maps.Animation.BOUNCE);
+
+          		// unset anmiation after 3 sec
+          		var thisMarker = this;
+				setTimeout(function () {
+					thisMarker.setAnimation(null);
+				}, 3000);
 			});
 
 			self.currentNeighborhood.markers.push(marker);
@@ -214,6 +221,12 @@ var ViewModel = function(){
 
 	this.clickMarker = function(){
 		google.maps.event.trigger(self.currentNeighborhood.markers[this.sno-1], 'click');
+		self.currentNeighborhood.markers[this.sno-1].setAnimation(google.maps.Animation.BOUNCE);
+
+		// unset anmiation after 3 sec
+		setTimeout(function () {
+			self.currentNeighborhood.markers[this.sno-1].setAnimation(null);
+		}, 3000);
 	}
 }
 
