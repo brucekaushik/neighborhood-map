@@ -89,7 +89,7 @@ var ViewModel = function(){
 		// prepare request params
 		var request = {
 			location: latlng,
-			radius: '500'
+			radius: '300'
 		};
 
 		// make nearby search
