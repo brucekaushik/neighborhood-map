@@ -155,6 +155,8 @@ var ViewModel = function(){
 				setTimeout(function () {
 					thisMarker.setAnimation(null);
 				}, 3000);
+
+				self.getPoiDetails(thisMarker, place.location, place.name);
 			});
 
 			self.currentNeighborhood.markers.push(marker);
@@ -220,13 +222,58 @@ var ViewModel = function(){
 	});
 
 	this.clickMarker = function(){
-		google.maps.event.trigger(self.currentNeighborhood.markers[this.sno-1], 'click');
-		self.currentNeighborhood.markers[this.sno-1].setAnimation(google.maps.Animation.BOUNCE);
+		var sno = this.sno;
+		google.maps.event.trigger(self.currentNeighborhood.markers[sno-1], 'click');
+		self.currentNeighborhood.markers[sno-1].setAnimation(google.maps.Animation.BOUNCE);
 
 		// unset anmiation after 3 sec
 		setTimeout(function () {
-			self.currentNeighborhood.markers[this.sno-1].setAnimation(null);
+			self.currentNeighborhood.markers[sno-1].setAnimation(null);
 		}, 3000);
+	}
+
+	self.getPoiDetails = function(marker, position, name){
+		var foursquareUrl = 'https://api.foursquare.com/v2/venues/search?' + 
+							'client_id=NKHGCANQ0WVGYPVFUZFS0QOW4TU0PYGVE44JLNE3XRQVKHYT&' + 
+							'client_secret=V21GQUL1TZLXPN5AQY1FOAICFRIRWDNA4EKOU2L5YUDMA25A&' + 
+							'll=' + position.lat() + ',' + position.lng() + '&' + 
+							'query=' + encodeURI(name) + '&' +
+							'limit=1&v=20170529';
+
+		var infowindowContent = self.infowindow.getContent();
+		infowindowContent += '<br><hr><br>FourSqare Data:<br>';
+
+		$.getJSON(foursquareUrl).done(function(response){
+			if(response.meta.code !== 200){
+				infowindowContent += '<br>Failed to load FourSqare Data';
+			} else if (response.response.venues.length == 0){
+				infowindowContent += '<br>No FourSqare Data available';
+			} else {
+			 	var data = '';
+				if (response.response.venues[0].name) {
+					data += '<br>Description: ' + response.response.venues[0].name;
+				}
+				if (response.response.venues[0].categories.length !== 0) {
+					data += '<br>Category: ' + response.response.venues[0].categories[0].name;
+				}
+				if (response.response.venues[0].location.address) {
+					data += '<br>Address: ' + response.response.venues[0].location.address;
+				}
+				if (response.response.venues[0].hereNow) {
+					data += '<br>People At Location: ' + response.response.venues[0].hereNow.count;
+				}
+				if(data){
+					infowindowContent += data;
+				} else {
+					infowindowContent += '<br>No interesting deatails found';
+				}
+			}
+			
+			self.infowindow.setContent(infowindowContent);
+		}).fail(function(){
+			infowindowContent += '<br>Failed to load FourSqare Data';
+			self.infowindow.setContent(infowindowContent);
+		});
 	}
 }
 
