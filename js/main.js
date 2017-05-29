@@ -102,28 +102,36 @@ var ViewModel = function(){
 
 	// store places in markers array (of this neighborhood)
 	self.storePlaces = function (results, status){
-		// remove the city result
-		results.shift();
+		if (status !== 'OK') {
 
-		// reset places of interest array
-		self.currentNeighborhood.poi = [];
+			$('aside ul').append('<li>Could not fetch places!</li>');
 
-		var i = 1;
-		$.each(results,function(index, place){
-			var placeDetails = {
-				sno: i,
-				placeId: place.place_id,
-				name: place.name,
-				location: place.geometry.location
-			};
+		} else {
 
-			self.currentNeighborhood.poi.push(placeDetails);
+			// remove the city result
+			results.shift();
 
-			i++;
-		});
+			// reset places of interest array
+			self.currentNeighborhood.poi = [];
 
-		// create markers for places
-		self.createMarkers(self.currentNeighborhood.poi);
+			var i = 1;
+			$.each(results,function(index, place){
+				var placeDetails = {
+					sno: i,
+					placeId: place.place_id,
+					name: place.name,
+					location: place.geometry.location
+				};
+
+				self.currentNeighborhood.poi.push(placeDetails);
+
+				i++;
+			});
+
+			// create markers for places
+			self.createMarkers(self.currentNeighborhood.poi);
+
+		}
 	};
 
 	self.createMarkers = function(placesList){
@@ -190,9 +198,14 @@ var ViewModel = function(){
 		      return i.name.toLowerCase().indexOf(q) >= 0;
 		    });
 
-		    // show markers for places of interest
-		    // hide the rest
 		    self.hideAllMarkers();
+
+		    // return error if no match
+		    if(pois.length == 0){
+		    	return {name: 'no match found'};
+		    }
+
+		    // show markers for places of interest		    
 		    self.showMarkersForPois(pois);
 	    
 	    	return pois;
