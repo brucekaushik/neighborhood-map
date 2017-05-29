@@ -67,8 +67,12 @@ var ViewModel = function(){
 		// set current neighborhood
 		self.currentNeighborhood = this;
 
+		// set infowindow to google maps api's infowindow object
+		// this supposed to be the only instance to use 
 		self.infowindow = new google.maps.InfoWindow();
 
+		// set map to google maps api's map object
+		// this supposed to be the only instance to use 
 		self.map = new google.maps.Map(
 			$('#map')[0],
 			{
