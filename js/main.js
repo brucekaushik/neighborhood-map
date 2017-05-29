@@ -206,9 +206,6 @@ var ViewModel = function(){
 
 
 
-
-
-
 // apply bindings
 ko.applyBindings(new ViewModel());
 
@@ -216,7 +213,11 @@ ko.applyBindings(new ViewModel());
 // OTHER EVENTS
 
 function initMap(){
-	$('#neighborhoods > li:first').click();
+	$('#neighborhoods > li:first').addClass('current').click();
 }
 
+$('#neighborhoods > li').click(function(){
+	$('#neighborhoods li').removeClass('current');
+	$(this).addClass('current');
+});
 
