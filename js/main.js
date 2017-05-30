@@ -60,11 +60,25 @@ var ViewModel = function(){
 	self.poiListDisplay = ko.observable('');
 
 	// observable to toggle display of places of neigborhoods list (menu)
-	self.neighborhoodsDisplay = ko.observable(''); 
+	self.neighborhoodsDisplay = ko.observable('');
 
 
 	// initialize neighborhood
-	self.init = function(){
+	// @param {mixed} - can either be 'first-load' or neighbourhood object
+	self.init = function(n){
+		if (n !== 'first-load') {
+			currentNeighborhood = new Neighborhood(neighborhoods[n.sno-1]);
+		}
+
+		// set css class active (by creating observable)
+		$.each(neighborhoods,function(index,neighborhood){
+			if(neighborhood.sno == currentNeighborhood.sno()){
+				neighborhoods[index].active('active');	
+			} else {
+				neighborhoods[index].active('');
+			}
+		});
+
 		// set map to google maps api's map object
 		// this supposed to be the only instance to use 
 		map = new google.maps.Map(
@@ -325,12 +339,21 @@ var ViewModel = function(){
 function initMap(){
 	// apply bindings
 	currentNeighborhood = new Neighborhood(neighborhoods[0]);
+
+	// set css class active (by creating observable)
+	$.each(neighborhoods,function(index,neighborhood){
+		if(neighborhood.sno == 1){
+			neighborhoods[0].active = ko.observable('active');	
+		} else {
+			neighborhoods[index].active = ko.observable('');
+		}
+	});
 	
 	// create new instance of view model
 	var vm = new ViewModel();
 
 	// initiate neighborhood related stuff
-	vm.init(currentNeighborhood);
+	vm.init('first-load');
 
 	// apply bindings
 	ko.applyBindings(vm);

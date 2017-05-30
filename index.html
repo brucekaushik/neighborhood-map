@@ -17,7 +17,7 @@
 			
 			<div id="neighborhoods-container" data-bind="attr: { 'class': neighborhoodsDisplay }">
 				<ul id="neighborhoods" data-bind="foreach: neighborhoods">
-					<li data-bind="attr: { 'data-sno': sno }, click: $parent.initMap">
+					<li data-bind="attr: { 'data-sno': sno }, attr: { 'class': active }, click: $parent.init">
 						<span data-bind="text: address"></span>
 					</li>
 				</ul>

@@ -75,7 +75,7 @@ body {
 		color: #cccccc;
 	}
 
-	#neighborhoods li.current {
+	#neighborhoods li.active {
 		background: #29961f;
 		color: #ffffff;
 	}
