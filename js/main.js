@@ -307,7 +307,7 @@ var ViewModel = function(){
 			return {name: 'no match found'};
 		}
 
-		// show markers for places of interest			
+		// show markers for places of interest
 		self.showMarkersForPois(pois);
 	
 		return pois;
