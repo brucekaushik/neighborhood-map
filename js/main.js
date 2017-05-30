@@ -43,7 +43,7 @@ var Neighborhood = function(data){
 
 var ViewModel = function(){
 	// retain this=ViewModel
-	self = this; 
+	var self = this; 
 
 	// store map
 	self.map = null;
