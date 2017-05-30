@@ -1,5 +1,3 @@
-'use strict';
-
 // MODEL (M)
 
 
@@ -41,7 +39,7 @@ var Neighborhood = function(data){
 	this.latlng = ko.observable(data.latlng);
 	this.poi = [];
 	this.markers = [];
-}
+};
 
 
 
@@ -49,6 +47,8 @@ var Neighborhood = function(data){
 
 
 var ViewModel = function(){
+	'use strict';
+
 	// retain this=ViewModel
 	var self = this; 
 
@@ -223,7 +223,7 @@ var ViewModel = function(){
 		$.getJSON(foursquareUrl).done(function(response){
 			if(response.meta.code !== 200){
 				infowindowContent += '<br>Failed to load FourSqare Data';
-			} else if (response.response.venues.length == 0){
+			} else if (response.response.venues.length === 0){
 				infowindowContent += '<br>No FourSqare Data available';
 			} else {
 			 	var data = '';
@@ -300,7 +300,7 @@ var ViewModel = function(){
 		self.hideAllMarkers();
 
 		// return error if no match
-		if(pois.length == 0){
+		if(pois.length === 0){
 			return {name: 'no match found'};
 		}
 
@@ -318,7 +318,7 @@ var ViewModel = function(){
 		} else {
 			self.neighborhoodsDisplay('hide');
 		}
-	}
+	};
 
 
 	// toggle display of points of interest list
@@ -328,15 +328,17 @@ var ViewModel = function(){
 		} else {
 			self.poiListDisplay('hide');
 		}
-	}
+	};
 
-}
+};
 
 
 
 // OTHER EVENTS
 
 function initMap(){
+	'use strict';
+
 	// apply bindings
 	currentNeighborhood = new Neighborhood(neighborhoods[0]);
 
