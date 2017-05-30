@@ -2,7 +2,8 @@
 	box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     min-height: 100% !important;
     height: 100%;
 }
