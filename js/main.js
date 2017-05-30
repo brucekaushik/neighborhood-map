@@ -103,11 +103,8 @@ var ViewModel = function(){
 	// store places in markers array (of this neighborhood)
 	self.storePlaces = function (results, status){
 		if (status !== 'OK') {
-
 			$('aside ul').append('<li>Could not fetch places!</li>');
-
 		} else {
-
 			// remove the city result
 			results.shift();
 
@@ -130,7 +127,6 @@ var ViewModel = function(){
 
 			// create markers for places
 			self.createMarkers(self.currentNeighborhood.poi);
-
 		}
 	};
 
@@ -141,17 +137,19 @@ var ViewModel = function(){
 				sno: i,
 				map: self.map,
 				position: place.location
-	        });
+      });
 
 			// Create an onclick event to open an infowindow at each marker.
 			marker.addListener('click', function() {
 				self.infowindow.marker = marker;
-          		self.infowindow.setContent(place.name);
-          		self.infowindow.open(self.map, marker);
-          		this.setAnimation(google.maps.Animation.BOUNCE);
+    		self.infowindow.setContent(place.name);
+    		self.infowindow.open(self.map, marker);
+    		this.setAnimation(google.maps.Animation.BOUNCE);
 
-          		// unset anmiation after 3 sec
-          		var thisMarker = this;
+        // marker
+        var thisMarker = this;
+
+    		// unset anmiation after 3 sec
 				setTimeout(function () {
 					thisMarker.setAnimation(null);
 				}, 3000);
@@ -247,6 +245,7 @@ var ViewModel = function(){
 	}
 
 	self.getPoiDetails = function(marker, position, name){
+    // prepare url for querying foursquare api
 		var foursquareUrl = 'https://api.foursquare.com/v2/venues/search?' + 
 							'client_id=NKHGCANQ0WVGYPVFUZFS0QOW4TU0PYGVE44JLNE3XRQVKHYT&' + 
 							'client_secret=V21GQUL1TZLXPN5AQY1FOAICFRIRWDNA4EKOU2L5YUDMA25A&' + 
@@ -254,9 +253,12 @@ var ViewModel = function(){
 							'query=' + encodeURI(name) + '&' +
 							'limit=1&v=20170529';
 
+    // get and set infowindow content
 		var infowindowContent = self.infowindow.getContent();
 		infowindowContent += '<br><hr><br>FourSqare Data:<br>';
 
+    // make ajax request to foursquare api
+    // depending on response, append to infowindow content
 		$.getJSON(foursquareUrl).done(function(response){
 			if(response.meta.code !== 200){
 				infowindowContent += '<br>Failed to load FourSqare Data';
@@ -283,14 +285,15 @@ var ViewModel = function(){
 				}
 			}
 			
+      // set infowindow content
 			self.infowindow.setContent(infowindowContent);
 		}).fail(function(){
+      // handle failure
 			infowindowContent += '<br>Failed to load FourSqare Data';
 			self.infowindow.setContent(infowindowContent);
 		});
 	}
 }
-
 
 
 // apply bindings
