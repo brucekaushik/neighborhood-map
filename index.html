@@ -10,11 +10,18 @@
 <body>
 	<div class="wrapper">
 		<header>
-			<ul id="neighborhoods" data-bind="foreach: neighborhoods">
-				<li data-bind="attr: { 'data-sno': sno }, click: $parent.initMap">
-					<span data-bind="text: address"></span>
-				</li>
-			</ul>
+			<div id="hamburgers">
+				<div id="poi-button"><img src="images/hamburger.png" alt="hamburger icon"><span>Places</span></div>	
+				<div id="n-button"><img src="images/hamburger.png" alt="hamburger icon"><span>Neighborhoods</span></div>	
+			</div>
+			
+			<div id="neighborhoods-container">
+				<ul id="neighborhoods" data-bind="foreach: neighborhoods">
+					<li data-bind="attr: { 'data-sno': sno }, click: $parent.initMap">
+						<span data-bind="text: address"></span>
+					</li>
+				</ul>
+			</div>
 		</header>
 		<aside>
 			<input id="search" data-bind="value: query, valueUpdate: 'keyup'" type="text" name="search" placeholder="Filter Places">

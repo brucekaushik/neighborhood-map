@@ -221,9 +221,23 @@ var ViewModel = function(){
 	    }
 	});
 
-	this.clickMarker = function(){
+	this.clickMarker = function(item, event){
+    if(document.body.clientWidth < 600){
+      $(event.target).parents('aside').addClass('hide');  
+    }
+
+    // marker serial number
 		var sno = this.sno;
+    // marker location
+    var latlng = self.currentNeighborhood.markers[sno-1].getPosition();
+
+    // trigger click on marker
 		google.maps.event.trigger(self.currentNeighborhood.markers[sno-1], 'click');
+
+    // center the map on marker
+    self.map.setCenter(latlng);
+
+    // make the marker bounce
 		self.currentNeighborhood.markers[sno-1].setAnimation(google.maps.Animation.BOUNCE);
 
 		// unset anmiation after 3 sec
@@ -286,11 +300,26 @@ ko.applyBindings(new ViewModel());
 // OTHER EVENTS
 
 function initMap(){
-	$('#neighborhoods > li:first').addClass('current').click();
+  $('#neighborhoods > li:first').addClass('current').click();
 }
 
 $('#neighborhoods > li').click(function(){
-	$('#neighborhoods li').removeClass('current');
-	$(this).addClass('current');
+  $('#neighborhoods li').removeClass('current');
+  $(this).addClass('current');
 });
 
+$('#poi-button').click(function(){
+  if ($('aside').hasClass('hide')) {
+    $('aside').removeClass('hide');
+  } else {
+    $('aside').addClass('hide');
+  }
+});
+
+$('#n-button').click(function(){
+  if ($('#neighborhoods-container').hasClass('hide')) {
+    $('#neighborhoods-container').removeClass('hide');
+  } else {
+    $('#neighborhoods-container').addClass('hide');
+  }
+});

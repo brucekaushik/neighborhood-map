@@ -17,11 +17,50 @@ body {
 	height: 100%;
 }
 
+.hide {
+	display: none !important;
+}
+
 /* begin header */
 
 	header {
 		background: #232324;
 		color: #ffffff;
+		text-align: center;
+	}
+
+	#hamburgers {
+		border-bottom: 1px solid #fff;
+		padding: 10px;
+	}
+
+	#hamburgers div {
+		display: inline-block;
+		margin: 0 3px;
+		padding: 0 3px 0 0;
+	}
+
+	#hamburgers div:hover {
+		background: #ff9000;
+		border-radius: 10px;
+		cursor: pointer;
+	}
+
+	#hamburgers div * {
+		line-height: 30px;
+		vertical-align: middle;
+	}
+
+	#hamburgers div img {
+		height: 32px;
+		width: 32px;
+		background: #ffffff;
+		border-radius: 10px;
+		margin-right: 10px;
+	}
+
+	#neighborhoods-container {
+		display: inline-block;
 	}
 
 	#neighborhoods {
@@ -41,14 +80,21 @@ body {
 		color: #ffffff;
 	}
 
+	
+
 /* end header */
 
 /* begin aside */
 
 	aside {
 		width: 25%;
+		min-width: 200px;
 		padding: 10px;
-		float: left;
+		position: absolute;
+		clear: both;
+		left: 0;
+		z-index: 1;
+		background: #ffffff;
 	}
 
 	aside ul {
@@ -79,7 +125,7 @@ body {
 
 .map-container {
 	float: left;
-	width: 75%;
+	width: 100%;
 	height: 500px;
 }
 
