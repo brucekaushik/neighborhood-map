@@ -239,6 +239,9 @@ var ViewModel = function(){
 				if (response.response.venues[0].hereNow) {
 					data += '<br>People At Location: ' + response.response.venues[0].hereNow.count;
 				}
+				if(response.response.venues[0].id){
+					data += '<br><a href="http://foursquare.com/v/' + response.response.venues[0].id + '">view on foursquare</a>';
+				}
 				if(data){
 					infowindowContent += data;
 				} else {
