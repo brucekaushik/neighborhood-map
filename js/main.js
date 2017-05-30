@@ -1,3 +1,5 @@
+// 'use strict';
+
 // MODEL (M)
 
 
@@ -24,6 +26,11 @@ var neighborhoods = [
 	}
 ];
 
+var map,
+	currentNeighborhood,
+	infoWindow;
+
+
 
 // VIEWS (V)
 
@@ -31,11 +38,11 @@ var neighborhoods = [
 var Neighborhood = function(data){
 	this.sno = ko.observable(data.sno);
 	this.address = ko.observable(data.address);
-	this.places = ko.observableArray([]);
 	this.latlng = ko.observable(data.latlng);
 	this.poi = [];
 	this.markers = [];
 }
+
 
 
 // VIEW MODEL (VM)
@@ -45,50 +52,41 @@ var ViewModel = function(){
 	// retain this=ViewModel
 	var self = this; 
 
-	// store map
-	self.map = null;
+	// store search query
+	// observe valueUpdate: 'keyup' usage in html 
+	self.query = ko.observable('');
 
-	// store current neighborhood
-	self.currentNeighborhood = null;
+	// observable to toggle display of places of interest list
+	self.poiListDisplay = ko.observable('');
 
-	// create neighborhoods knockout observable array
-	this.neighborhoods = ko.observableArray([]);
+	// observable to toggle display of places of neigborhoods list (menu)
+	self.neighborhoodsDisplay = ko.observable(''); 
 
-	// store info window
-	self.infowindow = null;
 
-	// push items to neighborhoods array
-	neighborhoods.forEach(function(n){
-		self.neighborhoods.push(new Neighborhood(n));
-	});
-
-	// initialize map
-	this.initMap = function(){
-		// set current neighborhood
-		self.currentNeighborhood = this;
-
-		// set infowindow to google maps api's infowindow object
-		// this supposed to be the only instance to use 
-		self.infowindow = new google.maps.InfoWindow();
-
+	// initialize neighborhood
+	self.init = function(){
 		// set map to google maps api's map object
 		// this supposed to be the only instance to use 
-		self.map = new google.maps.Map(
+		map = new google.maps.Map(
 			$('#map')[0],
 			{
-				center: this.latlng(),
-  				zoom: 17	
+				center: currentNeighborhood.latlng(),
+				zoom: 17	
 			}
 		);
 
-		// get places of interest
-		self.getPlacesOfInterest(this, self.map, this.latlng());
+		// set infowindow to google maps api's infowindow object
+		// this supposed to be the only instance to use 
+		infoWindow = new google.maps.InfoWindow();
+
+		self.getPlacesOfInterest(map, currentNeighborhood.latlng());
 	};
 
+
 	// get places of interest
-	self.getPlacesOfInterest = function(neighborhood, map, latlng){
+	self.getPlacesOfInterest = function(map, latlng){
 		// initiate request service object
-		service = new google.maps.places.PlacesService(map);
+		var service = new google.maps.places.PlacesService(map);
 
 		// prepare request params
 		var request = {
@@ -100,6 +98,7 @@ var ViewModel = function(){
 		service.nearbySearch(request, self.storePlaces);
 	};
 
+
 	// store places in markers array (of this neighborhood)
 	self.storePlaces = function (results, status){
 		if (status !== 'OK') {
@@ -109,8 +108,10 @@ var ViewModel = function(){
 			results.shift();
 
 			// reset places of interest array
-			self.currentNeighborhood.poi = [];
+			currentNeighborhood.poi = [];
 
+			// loop thorugh results (places of interest),
+			// and store in array
 			var i = 1;
 			$.each(results,function(index, place){
 				var placeDetails = {
@@ -120,36 +121,44 @@ var ViewModel = function(){
 					location: place.geometry.location
 				};
 
-				self.currentNeighborhood.poi.push(placeDetails);
+				currentNeighborhood.poi.push(placeDetails);
 
 				i++;
 			});
 
 			// create markers for places
-			self.createMarkers(self.currentNeighborhood.poi);
+			self.createMarkers(currentNeighborhood.poi);
+
+			// change the state of query,
+			// to trigger the computed observable
+			self.query(' ');
+			self.query('');
 		}
 	};
 
+	// create markers for placesList passed
 	self.createMarkers = function(placesList){
 		var i = 1;
+
 		$.each(placesList, function(index, place){
+			// create marker
 			var marker = new google.maps.Marker({
 				sno: i,
-				map: self.map,
+				map: map,
 				position: place.location
-      });
+			});
 
 			// Create an onclick event to open an infowindow at each marker.
 			marker.addListener('click', function() {
-				self.infowindow.marker = marker;
-    		self.infowindow.setContent(place.name);
-    		self.infowindow.open(self.map, marker);
-    		this.setAnimation(google.maps.Animation.BOUNCE);
+				infoWindow.marker = marker;
+				infoWindow.setContent(place.name);
+				infoWindow.open(map, marker);
+				this.setAnimation(google.maps.Animation.BOUNCE);
 
-        // marker
-        var thisMarker = this;
+				// marker
+				var thisMarker = this;
 
-    		// unset anmiation after 3 sec
+				// unset anmiation after 3 sec
 				setTimeout(function () {
 					thisMarker.setAnimation(null);
 				}, 3000);
@@ -157,95 +166,33 @@ var ViewModel = function(){
 				self.getPoiDetails(thisMarker, place.location, place.name);
 			});
 
-			self.currentNeighborhood.markers.push(marker);
+			// push markers to array in neighborhood
+			currentNeighborhood.markers.push(marker);
 
 			i++;
 		});
-
-		// trigger changes and keyup events, 
-		// so that we show the list of markers,
-		// after the data is available
-		$('#search').val(' ');
-		$('#search').keyup();
-		$('#search').val('');
-		$('#search').keyup();
 	};
 
-	// hide all markers on map
-	self.hideAllMarkers = function(){
-		if (self.currentNeighborhood){
-			for (var i = 0; i < self.currentNeighborhood.markers.length; i++) {
-				self.currentNeighborhood.markers[i].setMap(null);
-			}
-		}
-	}
 
 	// loop through the places of interest and 
 	// show markers on map
 	self.showMarkersForPois = function(pois) {
 		for (var i = 0; i < pois.length; i++) {
-			self.currentNeighborhood.markers[pois[i].sno-1].setMap(self.map);
+			currentNeighborhood.markers[pois[i].sno-1].setMap(map);
 		}
-	}
+	};
 
-	// store search query
-	// observe valueUpdate: 'keyup' usage in html 
-	self.query = ko.observable('');
 
-	// computed observable
-	self.searchResults = ko.computed(function() {
-	    var q = self.query(); 
-	    // this value is update on every 'key up'
-	    // so, the state of the variable will change
-	    // so, this will run again and again
+	// hide all markers on map
+	self.hideAllMarkers = function(){
+		for (var i = 0; i < currentNeighborhood.markers.length; i++) {
+			currentNeighborhood.markers[i].setMap(null);
+		}
+	};
 
-	    if(self.currentNeighborhood){
-		    // self reminder: filter is a native javascript method
-		    var pois = self.currentNeighborhood.poi.filter(function(i) {
-		      return i.name.toLowerCase().indexOf(q) >= 0;
-		    });
-
-		    self.hideAllMarkers();
-
-		    // return error if no match
-		    if(pois.length == 0){
-		    	return {name: 'no match found'};
-		    }
-
-		    // show markers for places of interest		    
-		    self.showMarkersForPois(pois);
-	    
-	    	return pois;
-	    }
-	});
-
-	this.clickMarker = function(item, event){
-    if(document.body.clientWidth < 600){
-      $(event.target).parents('aside').addClass('hide');  
-    }
-
-    // marker serial number
-		var sno = this.sno;
-    // marker location
-    var latlng = self.currentNeighborhood.markers[sno-1].getPosition();
-
-    // trigger click on marker
-		google.maps.event.trigger(self.currentNeighborhood.markers[sno-1], 'click');
-
-    // center the map on marker
-    self.map.setCenter(latlng);
-
-    // make the marker bounce
-		self.currentNeighborhood.markers[sno-1].setAnimation(google.maps.Animation.BOUNCE);
-
-		// unset anmiation after 3 sec
-		setTimeout(function () {
-			self.currentNeighborhood.markers[sno-1].setAnimation(null);
-		}, 3000);
-	}
 
 	self.getPoiDetails = function(marker, position, name){
-    // prepare url for querying foursquare api
+		// prepare url for querying foursquare api
 		var foursquareUrl = 'https://api.foursquare.com/v2/venues/search?' + 
 							'client_id=NKHGCANQ0WVGYPVFUZFS0QOW4TU0PYGVE44JLNE3XRQVKHYT&' + 
 							'client_secret=V21GQUL1TZLXPN5AQY1FOAICFRIRWDNA4EKOU2L5YUDMA25A&' + 
@@ -253,12 +200,12 @@ var ViewModel = function(){
 							'query=' + encodeURI(name) + '&' +
 							'limit=1&v=20170529';
 
-    // get and set infowindow content
-		var infowindowContent = self.infowindow.getContent();
+		// get and set infowindow content
+		var infowindowContent = infoWindow.getContent();
 		infowindowContent += '<br><hr><br>FourSqare Data:<br>';
 
-    // make ajax request to foursquare api
-    // depending on response, append to infowindow content
+		// make ajax request to foursquare api
+		// depending on response, append to infowindow content
 		$.getJSON(foursquareUrl).done(function(response){
 			if(response.meta.code !== 200){
 				infowindowContent += '<br>Failed to load FourSqare Data';
@@ -285,44 +232,107 @@ var ViewModel = function(){
 				}
 			}
 			
-      // set infowindow content
-			self.infowindow.setContent(infowindowContent);
+			// set infowindow content
+			infoWindow.setContent(infowindowContent);
 		}).fail(function(){
-      // handle failure
+			// handle failure
 			infowindowContent += '<br>Failed to load FourSqare Data';
-			self.infowindow.setContent(infowindowContent);
+			infoWindow.setContent(infowindowContent);
 		});
+	};
+
+
+	// delegate click on marker when place of interest is clicked
+	this.clickMarker = function(item, event){
+		// marker serial number
+		var sno = this.sno;
+
+		// marker location
+		var latlng = currentNeighborhood.markers[sno-1].getPosition();
+
+		// trigger click on marker
+		google.maps.event.trigger(currentNeighborhood.markers[sno-1], 'click');
+
+		// center the map on marker
+		map.setCenter(latlng);
+
+		// make the marker bounce
+		currentNeighborhood.markers[sno-1].setAnimation(google.maps.Animation.BOUNCE);
+
+		// unset anmiation after 3 sec
+		setTimeout(function () {
+			currentNeighborhood.markers[sno-1].setAnimation(null);
+		}, 3000);
+
+
+		if(document.body.clientWidth < 600){
+			self.poiListDisplay('hide'); 
+		}
+	};
+
+
+	// computed observable
+	self.searchResults = ko.computed(function() {
+		var q = self.query(); 
+		// this value is update on every 'key up'
+		// so, the state of the variable will change
+		// so, this will run again and again
+
+		// self reminder: filter is a native javascript method
+		var pois = currentNeighborhood.poi.filter(function(i) {
+		  return i.name.toLowerCase().indexOf(q) >= 0;
+		});
+
+		self.hideAllMarkers();
+
+		// return error if no match
+		if(pois.length == 0){
+			return {name: 'no match found'};
+		}
+
+		// show markers for places of interest			
+		self.showMarkersForPois(pois);
+	
+		return pois;
+	});
+
+
+	// toggle display of neighborhoods menu
+	self.toggleNeighborhoodsMenu = function(){
+		if(self.neighborhoodsDisplay()){
+			self.neighborhoodsDisplay('');
+		} else {
+			self.neighborhoodsDisplay('hide');
+		}
 	}
+
+
+	// toggle display of points of interest list
+	self.togglePoiList = function(){
+		if(self.poiListDisplay()){
+			self.poiListDisplay('');
+		} else {
+			self.poiListDisplay('hide');
+		}
+	}
+
 }
 
-
-// apply bindings
-ko.applyBindings(new ViewModel());
 
 
 // OTHER EVENTS
 
 function initMap(){
-  $('#neighborhoods > li:first').addClass('current').click();
+	// apply bindings
+	currentNeighborhood = new Neighborhood(neighborhoods[0]);
+	
+	// create new instance of view model
+	var vm = new ViewModel();
+
+	// initiate neighborhood related stuff
+	vm.init(currentNeighborhood);
+
+	// apply bindings
+	ko.applyBindings(vm);
 }
 
-$('#neighborhoods > li').click(function(){
-  $('#neighborhoods li').removeClass('current');
-  $(this).addClass('current');
-});
-
-$('#poi-button').click(function(){
-  if ($('aside').hasClass('hide')) {
-    $('aside').removeClass('hide');
-  } else {
-    $('aside').addClass('hide');
-  }
-});
-
-$('#n-button').click(function(){
-  if ($('#neighborhoods-container').hasClass('hide')) {
-    $('#neighborhoods-container').removeClass('hide');
-  } else {
-    $('#neighborhoods-container').addClass('hide');
-  }
-});

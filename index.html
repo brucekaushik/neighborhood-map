@@ -11,11 +11,11 @@
 	<div class="wrapper">
 		<header>
 			<div id="hamburgers">
-				<div id="poi-button"><img src="images/hamburger.png" alt="hamburger icon"><span>Places</span></div>	
-				<div id="n-button"><img src="images/hamburger.png" alt="hamburger icon"><span>Neighborhoods</span></div>	
+				<div id="poi-button" data-bind="click: togglePoiList"><img src="images/hamburger.png" alt="hamburger icon"><span>Places</span></div>
+				<div id="n-button" data-bind="click: toggleNeighborhoodsMenu"><img src="images/hamburger.png" alt="hamburger icon"><span>Neighborhoods</span></div>
 			</div>
 			
-			<div id="neighborhoods-container">
+			<div id="neighborhoods-container" data-bind="attr: { 'class': neighborhoodsDisplay }">
 				<ul id="neighborhoods" data-bind="foreach: neighborhoods">
 					<li data-bind="attr: { 'data-sno': sno }, click: $parent.initMap">
 						<span data-bind="text: address"></span>
@@ -23,7 +23,7 @@
 				</ul>
 			</div>
 		</header>
-		<aside>
+		<aside data-bind="attr: { 'class': poiListDisplay }">
 			<input id="search" data-bind="value: query, valueUpdate: 'keyup'" type="text" name="search" placeholder="Filter Places">
 			<ul id="searchresults" data-bind="foreach: searchResults">
 			  <li data-bind="text: name, click: $parent.clickMarker"></li>
@@ -40,11 +40,11 @@
 	<!-- load knockout library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 
+    <!-- load our main javascript file -->
+    <script src="js/main.js"></script>
+
     <!-- load google maps javscript api -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCiavCuPiYyLnpxxuv-CFgezXOvfEVn2M&libraries=places&v=3&callback=initMap"
     async defer></script>
-
-    <!-- load our main javascript file -->
-    <script src="js/main.js"></script>
 </body>
 </html>
