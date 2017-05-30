@@ -361,3 +361,6 @@ function initMap(){
 	ko.applyBindings(vm);
 }
 
+function mapLoadFail(){
+	alert('google maps failed to load, please try refereshing the page');
+}
